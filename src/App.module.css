@@ -1,0 +1,21 @@
+.context {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+}
+
+.line {
+    display: flex;
+    height: 20px;
+    align-items: center;
+}
+
+.button {
+    border: 1px solid gray;
+    border-left: none;
+    padding: 0 4px;
+    cursor: pointer;
+}
+
+.description {
+}
