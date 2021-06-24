@@ -4,23 +4,24 @@
   "private": true,
   "homepage": "https://dancerphil.github.io/github-friends/",
   "dependencies": {
-    "@testing-library/jest-dom": "^5.11.4",
-    "@testing-library/react": "^11.1.0",
-    "@testing-library/user-event": "^12.1.10",
-    "@types/jest": "^26.0.15",
-    "@types/node": "^12.0.0",
-    "@types/react": "^17.0.0",
-    "@types/react-dom": "^17.0.0",
-    "echarts": "^5.0.2",
-    "gh-pages": "^3.1.0",
+    "@testing-library/jest-dom": "^5.14.1",
+    "@testing-library/react": "^12.0.0",
+    "@testing-library/user-event": "^13.1.9",
+    "@types/jest": "^26.0.23",
+    "@types/lodash": "^4.14.170",
+    "@types/node": "^15.12.4",
+    "@types/react": "^17.0.11",
+    "@types/react-dom": "^17.0.8",
+    "echarts": "^5.1.2",
+    "gh-pages": "^3.2.3",
     "lodash": "^4.17.21",
-    "octonode": "^0.10.0",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
+    "octonode": "^0.10.2",
+    "react": "^18.0.0-alpha-e6be2d531",
+    "react-dom": "18.0.0-alpha-e6be2d531",
     "react-scripts": "4.0.3",
-    "region-core": "^10.0.5",
-    "typescript": "^4.1.2",
-    "web-vitals": "^1.0.1"
+    "region-core": "^12.0.0-alpha.1",
+    "typescript": "^4.3.4",
+    "web-vitals": "^2.0.1"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -47,8 +48,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "@types/lodash": "^4.14.168"
   }
 }

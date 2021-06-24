@@ -1,18 +1,58 @@
-import React, {FC, useCallback, useState} from 'react';
-import {getNodesAndLinks, start, getProgressDescription} from './region';
+import React, {FC, useCallback, useEffect, useState} from 'react';
+import {createLocalStorageRegion} from 'region-core';
+import {getNodesAndLinks, start, getProgressDescription, useCurrentId} from './region';
 import {useForceUpdate, useOption, handleFollowChange, handleMoreThanOneChange, handleAllChange} from './region/utils';
 import Graph from "./echarts/Graph";
 import c from './App.module.css';
 
+const tokenRegion = createLocalStorageRegion('token', '')
+
+const setToken = tokenRegion.set;
+
+const useToken = tokenRegion.useValue;
+
 interface PropsId {
     id: string
 }
+
 const Main: FC<PropsId> = ({id}) => {
     useForceUpdate();
     const [nodes, links] = getNodesAndLinks(id);
     return (
         <Graph nodes={nodes} links={links} />
     );
+};
+
+const StartMenu = () => {
+    const [value, setValue] = useState('');
+    const handleChange = useCallback(
+        (e: any) => {
+            setValue(e.target.value)
+        },
+        []
+    );
+    const handleClick = useCallback(
+        () => {
+            setToken(value);
+        },
+        [value]
+    );
+    const handleEnter = useCallback(
+        (e) => {
+            if (e.code === 'Enter' || e.code === 'NumpadEnter') {
+                handleClick()
+            }
+        },
+        [handleClick]
+    );
+    return (
+        <Line>
+            <input placeholder="输入 token" value={value} onChange={handleChange} onKeyDown={handleEnter} />
+            <span className={c.button} onClick={handleClick}>开始</span>
+            <a className={c.link} href="https://github.com/settings/tokens/new" target="_blank" rel="noreferrer noopener">?</a>
+            <span className={c.tip}>此 token 仅用于获取开放的用户信息，请选择 user 标签以及其下的项</span>
+        </Line>
+    )
 };
 
 const Description: FC<PropsId> = ({id}) => {
@@ -26,36 +66,24 @@ const Line: FC = ({children}) => {
 
 const App = () => {
     const option = useOption();
-    const [current, setCurrent] = useState('');
-    const [value, setValue] = useState('');
-    const handleChange = useCallback(
-        (e: any) => {
-            setValue(e.target.value)
-        },
-        []
-    );
-    const handleClick = useCallback(
+    const currentId = useCurrentId();
+    const token = useToken();
+    useEffect(
         () => {
-            setCurrent(value);
-            start(value)
-        },
-        [value]
-    );
-    const handleEnter = useCallback(
-        (e) => {
-            if (e.code === 'Enter' || e.code === 'NumpadEnter') {
-                handleClick()
+            if(token) {
+                start(token);
             }
         },
-        [handleClick]
+        [token]
     );
+
     return (
         <>
-            {current && <Main id={current} />}
+            {currentId && <Main id={currentId} />}
             <div className={c.context}>
-                {current ? (
+                {currentId ? (
                     <>
-                        <Line><Description id={current} /></Line>
+                        <Line><Description id={currentId} /></Line>
                         <Line>
                             <input
                                 type="checkbox"
@@ -87,10 +115,7 @@ const App = () => {
                         </Line>
                     </>
                 ) : (
-                    <Line>
-                        <input placeholder="输入 id" value={value} onChange={handleChange} onKeyDown={handleEnter} />
-                        <span className={c.button} onClick={handleClick}>开始</span>
-                    </Line>
+                    <StartMenu />
                 )}
             </div>
         </>

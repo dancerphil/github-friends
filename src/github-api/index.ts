@@ -2,7 +2,13 @@
 import {client as getClient} from 'octonode';
 import {Info} from '../types';
 
-const client = getClient('2dc94bbd29451f930a2ffd7c2607c11d7030f8d7');
+let client;
+
+export const getMeInfo = async (token: string) => {
+    client = getClient(token);
+    const [me] = await client.me().infoAsync();
+    return me
+};
 
 export const getUserApi = (id: string) => {
     const user = client.user(id);

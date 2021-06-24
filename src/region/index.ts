@@ -1,7 +1,8 @@
 import * as _ from 'lodash';
-import {getUserApi} from "../github-api";
+import {getMeInfo, getUserApi} from "../github-api";
 import {Info, Link, Node} from '../types';
 import {forceUpdate, getOption} from './utils';
+import {createRegion} from "region-core";
 
 const duration = 99;
 const maxFollowPage = 8;
@@ -9,10 +10,12 @@ const maxFollowPage = 8;
 let currentPromise = Promise.resolve();
 
 // not concurrent for now
-const addTask = (task: () => Promise<void> | void) => {
+const addTask = (task: () => Promise<void>) => {
     const onFulfilled = () => new Promise<void>(resolve => {
         setTimeout(() => {
-            resolve(task())
+            const nextPromise = task();
+            nextPromise.catch(() => addTask(task));
+            resolve(nextPromise)
         }, duration);
     });
     currentPromise = currentPromise.then(onFulfilled, onFulfilled);
@@ -176,21 +179,28 @@ const loadUserFollow = (id: string) => {
     }
 };
 
-export const start = async (id: string) => {
-    const callback = () => {
-        entities[id].friends.forEach(friendId => {
+const currentIdRegion = createRegion<string>();
+export const useCurrentId = currentIdRegion.useValue;
+const setCurrentId = currentIdRegion.set;
+
+export const start = async (token: string) => {
+    const me = await getMeInfo(token);
+    const currentId = me.login;
+    setCurrentId(currentId);
+    const callback = async () => {
+        entities[currentId].friends.forEach(friendId => {
             const task = () => getUserApi(friendId).apiGetInfo().then(info => initUser(friendId, info));
             addTask(task);
         });
-        entities[id].friends.forEach(friendId => {
-            addTask(() => loadUserFollow(friendId));
+        entities[currentId].friends.forEach(friendId => {
+            addTask(async () => loadUserFollow(friendId));
         });
     };
 
-    const task = () => getUserApi(id).apiGetInfo().then(info => initUser(id, info));
+    const task = () => getUserApi(currentId).apiGetInfo().then(info => initUser(currentId, info));
     addTask(task);
-    addTask(() => {
-        loadUserFollow(id);
+    addTask(async () => {
+        loadUserFollow(currentId);
         addTask(callback)
     });
 };
