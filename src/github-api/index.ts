@@ -4,6 +4,29 @@ import {Info} from '../types';
 
 let client;
 
+// 为了防止 github ban ip，所有请求先 delay 一段时间
+const duration = 200;
+
+const delay = () => new Promise(resolve => setTimeout(resolve, duration));
+
+const withDelayAndRetry = <T>(asyncFunction: T): T  => {
+    // let retry = 0;
+    const func: T = async (params: T1) => {
+        try {
+            await delay();
+            const result = await asyncFunction(params);
+            return result;
+        } catch (e) {
+            // test retry
+            // if (retry < 3) {
+            //     retry ++;
+            //     func(params);
+            // }
+        }
+    };
+    return func;
+};
+
 export const getMeInfo = async (token: string) => {
     client = getClient(token);
     const [me] = await client.me().infoAsync();
@@ -25,8 +48,8 @@ export const getUserApi = (id: string) => {
         return list.map(item => item.login)
     };
     return {
-        apiGetInfo,
-        apiGetFollowers,
-        apiGetFollowings,
+        apiGetInfo: withDelayAndRetry(apiGetInfo),
+        apiGetFollowers: withDelayAndRetry(apiGetFollowers),
+        apiGetFollowings: withDelayAndRetry(apiGetFollowings),
     }
 };

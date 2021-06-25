@@ -16,7 +16,19 @@ const Graph: FC<Props> = ({nodes, links}) => {
     useLayoutEffect(
         () => {
             if(ref.current) {
-                chart = init(ref.current)
+                chart = init(ref.current, {
+                    color: [
+                        '#5470c6',
+                        '#ee6666',
+                        '#73c0de',
+                        '#91cc75',
+                        '#fac858',
+                        '#cccccc',
+                        '#fc8452'/* ,
+                        '#9a60b4',
+                        '#ea7ccc' */
+                    ],
+                })
             }
         },
         []

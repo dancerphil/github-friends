@@ -12,6 +12,7 @@ import {useNodesAndLinks} from './region/nodesAndLinks';
 import Graph from "./echarts/Graph";
 import c from './App.module.css';
 import {useDescription} from "./region/description";
+import {useExceptions} from "./region/exception";
 
 const tokenRegion = createLocalStorageRegion('token', '')
 
@@ -67,14 +68,16 @@ const Description: FC<PropsId> = ({id}) => {
     return <div className={c.description}>{description}</div>
 };
 
-const Line: FC = ({children}) => {
-    return <div className={c.line}>{children}</div>;
+const Line: FC<{className?: string}> = ({className, children}) => {
+    return <div className={className ? `${c.line} ${className}` : c.line}>{children}</div>;
 };
 
 const App = () => {
     const option = useOption();
     const currentId = useCurrentId();
     const token = useToken();
+    const exceptions = useExceptions();
+
     useEffect(
         () => {
             if(token) {
@@ -120,6 +123,14 @@ const App = () => {
                             />
                             <label htmlFor="all">显示所有二度好友</label>
                         </Line>
+                        {exceptions.length > 0 && (
+                            <Line className={c.hoverIcon}>?</Line>
+                        )}
+                        {exceptions.map(message => (
+                            <Line className={c.hoverLine}>
+                                {message}
+                            </Line>
+                        ))}
                     </>
                 ) : (
                     <StartMenu />

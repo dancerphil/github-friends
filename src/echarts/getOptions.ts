@@ -1,17 +1,17 @@
 import {Category, Link, Node} from '../types';
 
-const categories: Category[] = ['me' , 'friend' , 'friend-friend+follower' , 'friend-friend' , 'friend-following+follower'];
+const categories: Category[] = [
+    'me',
+    'friend',
+    'friend-friend+follower',
+    'friend-friend',
+    'friend-friend-friend+follower',
+    'friend-friend-friend',
+    'friend-following+follower'
+];
 
 export const getOptions = (nodes: Node[], links: Link[]) => {
-    nodes.forEach(node => {
-        // @ts-ignore
-        node.name = node.id;
-        return node;
-    });
     const option = {
-        legend: {
-            data: ['HTMLElement', 'WebGL', 'SVG', 'CSS', 'Other']
-        },
         series: [{
             type: 'graph',
             layout: 'force',

@@ -10,6 +10,18 @@
     align-items: center;
 }
 
+.hoverLine {
+    display: none;
+}
+
+.hoverIcon {
+    cursor: pointer;
+}
+
+.hoverIcon:hover + .hoverLine {
+    display: initial;
+}
+
 .button {
     border: 1px solid gray;
     border-left: none;

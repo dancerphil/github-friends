@@ -4,24 +4,15 @@ import {setCurrentId} from './utils';
 import {emitNodesAndLinks} from './nodesAndLinks';
 import {getFriends, addEdge, initVertex, getVertex} from '../dataStructures/Entities';
 import {emitDescription} from "./description";
+import {pushException} from "./exception";
 
-const duration = 200;
-
+// const duration = 200;
+//
 let currentPromise = Promise.resolve();
 
 // not concurrent for now
 const addTask = (task: () => Promise<void>) => {
-    const onFulfilled = () => new Promise<void>(resolve => {
-
-        // 暂时hack在这里
-        emitNodesAndLinks();
-
-        setTimeout(() => {
-            const nextPromise = task();
-            nextPromise.catch(() => addTask(task));
-            resolve(nextPromise)
-        }, duration);
-    });
+    const onFulfilled = () => new Promise<void>(resolve =>  resolve(task()));
     currentPromise = currentPromise.then(onFulfilled, onFulfilled);
 };
 
@@ -35,12 +26,14 @@ const insertFollowings = (id: string, followings: string[]) => {
     followings.forEach(following => {
         addEdge(id, following);
     });
+    emitNodesAndLinks();
 };
 
 const insertFollowers = (id: string, followers: string[]) => {
     followers.forEach(follower => {
         addEdge(follower, id);
     });
+    emitNodesAndLinks();
 };
 
 const loadUserFollowing = async (id: string, depth: number) => {
@@ -49,22 +42,25 @@ const loadUserFollowing = async (id: string, depth: number) => {
         apiGetFollowings,
         apiGetFollowers,
     } = getUserApi(id);
-    if (!getVertex(id)?.info) {
-        emitDescription(`加载用户信息：${id}`);
-        await apiGetInfo().then(info => {
-            initVertex(id);
-            updateUserInfo(id, info);
-        });
+    if (getVertex(id)?.info) {
+        return;
     }
-    const prefixText = `加载 ${depth + 1} 度好友信息（${id} 的好友）`;
+    emitDescription(`加载 ${id}（你的 ${depth} 度好友）的信息`);
+    const info = await apiGetInfo();
+    initVertex(id);
+    updateUserInfo(id, info);
+    const prefixText = `加载 ${id}（你的 ${depth} 度好友）的好友列表`;
     const followingsPage = Math.ceil(getVertex(id).info!.following / 100);
 
-    for (let page = 1; page <= followingsPage; page++) {
-        const task = () => {
+    // 非本人，且关注了太多人的用户跳过
+    if (depth === 0 || followingsPage <= 100) {
+        for (let page = 1; page <= followingsPage; page++) {
             emitDescription(`${prefixText}：followings ${page}/${followingsPage}`);
-            return apiGetFollowings(page).then(followings => insertFollowings(id, followings));
-        };
-        addTask(task);
+            const followings = await apiGetFollowings(page);
+            insertFollowings(id, followings);
+        }
+    } else {
+        pushException(`没有加载 ${id} 的关注列表，关注了太多人`);
     }
 
     const followersPage = Math.ceil(getVertex(id).info!.followers / 100);
@@ -72,21 +68,21 @@ const loadUserFollowing = async (id: string, depth: number) => {
     // 非本人，且关注者众多的用户跳过
     if (depth === 0 || followersPage <= 10) {
         for (let page = 1; page <= followersPage; page++) {
-            const task = () => {
-                emitDescription(`${prefixText}：followers ${page}/${followersPage}`);
-                return apiGetFollowers(page).then(followers => insertFollowers(id, followers));
-            };
-            addTask(task);
+            emitDescription(`${prefixText}：followers ${page}/${followersPage}`);
+            const followers = await apiGetFollowers(page);
+            insertFollowers(id, followers);
         }
+    } else {
+        pushException(`没有加载 ${id} 的关注者列表，被太多人关注`);
     }
 
-    if (depth <= 0) {
-        addTask(async () => {
-            getFriends(id).forEach(friend => {
-                const friendId = friend.getKey();
-                addTask(() => loadUserFollowing(friendId, depth +  1))
-            });
-        })
+    if (depth <= 1) {
+        const friends = getFriends(id);
+        for (let i = 0; i < friends.length; i++) {
+            const friend = friends[i];
+            const friendId = friend.getKey();
+            addTask(() => loadUserFollowing(friendId, depth +  1));
+        }
     }
 };
 
@@ -95,7 +91,5 @@ export const start = async (token: string) => {
     const currentId = me.login;
     setCurrentId(currentId);
 
-    addTask(async () => {
-        loadUserFollowing(currentId, 0);
-    });
+    addTask(() => loadUserFollowing(currentId, 0));
 };

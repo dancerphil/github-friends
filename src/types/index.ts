@@ -1,8 +1,14 @@
 
-export type Category = 'me' | 'friend' | 'friend-friend+follower' | 'friend-friend' | 'friend-following+follower'
+export type Category = 'me'
+    | 'friend'
+    | 'friend-friend+follower'
+    | 'friend-friend'
+    | 'friend-friend-friend'
+    | 'friend-friend-friend+follower'
+    | 'friend-following+follower'
 
 export interface Node {
-    id: string;
+    name: string;
     category: Category
 }
 
