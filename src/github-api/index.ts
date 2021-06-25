@@ -20,13 +20,13 @@ export const getUserApi = (id: string) => {
         const [list] = await user.followersAsync({page, per_page: 100});
         return list.map(item => item.login)
     };
-    const apiGetFollowing = async (page = 1): Promise<string[]> => {
+    const apiGetFollowings = async (page = 1): Promise<string[]> => {
         const [list] = await user.followingAsync({page, per_page: 100});
         return list.map(item => item.login)
     };
     return {
         apiGetInfo,
         apiGetFollowers,
-        apiGetFollowing,
+        apiGetFollowings,
     }
 };

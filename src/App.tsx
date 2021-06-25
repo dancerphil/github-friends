@@ -1,9 +1,17 @@
 import React, {FC, useCallback, useEffect, useState} from 'react';
 import {createLocalStorageRegion} from 'region-core';
-import {getNodesAndLinks, start, getProgressDescription, useCurrentId} from './region';
-import {useForceUpdate, useOption, handleFollowChange, handleMoreThanOneChange, handleAllChange} from './region/utils';
+import {start} from './region';
+import {
+    useOption,
+    handleFollowChange,
+    handleMoreThanOneChange,
+    handleAllChange,
+    useCurrentId
+} from './region/utils';
+import {useNodesAndLinks} from './region/nodesAndLinks';
 import Graph from "./echarts/Graph";
 import c from './App.module.css';
+import {useDescription} from "./region/description";
 
 const tokenRegion = createLocalStorageRegion('token', '')
 
@@ -15,9 +23,8 @@ interface PropsId {
     id: string
 }
 
-const Main: FC<PropsId> = ({id}) => {
-    useForceUpdate();
-    const [nodes, links] = getNodesAndLinks(id);
+const Main: FC<PropsId> = () => {
+    const [nodes, links] = useNodesAndLinks();
     return (
         <Graph nodes={nodes} links={links} />
     );
@@ -56,8 +63,8 @@ const StartMenu = () => {
 };
 
 const Description: FC<PropsId> = ({id}) => {
-    useForceUpdate();
-    return <div className={c.description}>{getProgressDescription(id)}</div>
+    const description = useDescription();
+    return <div className={c.description}>{description}</div>
 };
 
 const Line: FC = ({children}) => {

@@ -3,7 +3,6 @@ import GraphEdge from "./GraphEdge";
 
 export default class Graph {
     vertices: {[key in string]: GraphVertex} = {};
-    edges: {[key in string]: GraphEdge}  = {};
 
     /**
      * @param {GraphVertex} newVertex
@@ -27,8 +26,16 @@ export default class Graph {
      * @param {GraphVertex} vertex
      * @returns {GraphVertex[]}
      */
-    getNeighbors(vertex: GraphVertex) {
-        return vertex.getNeighbors();
+    getFollowings(vertex: GraphVertex) {
+        return vertex.getFollowings();
+    }
+
+    /**
+     * @param {GraphVertex} vertex
+     * @returns {GraphVertex[]}
+     */
+    getFriends(vertex: GraphVertex) {
+        return vertex.getFriends();
     }
 
     /**
@@ -36,13 +43,6 @@ export default class Graph {
      */
     getAllVertices() {
         return Object.values(this.vertices);
-    }
-
-    /**
-     * @return {GraphEdge[]}
-     */
-    getAllEdges() {
-        return Object.values(this.edges);
     }
 
     /**
@@ -65,13 +65,6 @@ export default class Graph {
             this.addVertex(edge.endVertex);
         }
 
-        // Check if edge has been already added.
-        if (this.edges[edge.getKey()]) {
-            throw new Error('Edge has already been added before');
-        } else {
-            this.edges[edge.getKey()] = edge;
-        }
-
         // If graph IS directed then add the edge only to start vertex.
         startVertex.addEdge(edge);
 
@@ -82,19 +75,10 @@ export default class Graph {
      * @param {GraphEdge} edge
      */
     deleteEdge(edge: GraphEdge) {
-        // Delete edge from the list of edges.
-        if (this.edges[edge.getKey()]) {
-            delete this.edges[edge.getKey()];
-        } else {
-            throw new Error('Edge not found in graph');
-        }
-
         // Try to find and end start vertices and delete edge from them.
         const startVertex = this.getVertexByKey(edge.startVertex.getKey());
-        const endVertex = this.getVertexByKey(edge.endVertex.getKey());
 
         startVertex.deleteEdge(edge);
-        endVertex.deleteEdge(edge);
     }
 
     /**
@@ -110,26 +94,6 @@ export default class Graph {
         }
 
         return vertex.findEdge(endVertex);
-    }
-
-    /**
-     * Reverse all the edges in directed graph.
-     * @return {Graph}
-     */
-    reverse() {
-        /** @param {GraphEdge} edge */
-        this.getAllEdges().forEach((edge) => {
-            // Delete straight edge from graph and from vertices.
-            this.deleteEdge(edge);
-
-            // Reverse the edge.
-            edge.reverse();
-
-            // Add reversed edge back to the graph and its vertices.
-            this.addEdge(edge);
-        });
-
-        return this;
     }
 
     /**

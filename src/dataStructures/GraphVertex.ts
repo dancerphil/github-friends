@@ -1,7 +1,9 @@
 import GraphEdge from "./GraphEdge";
+import {Info} from "../types";
 
 export default class GraphVertex {
     value: string;
+    info?: Info;
     edges: GraphEdge[];
 
     /**
@@ -39,17 +41,17 @@ export default class GraphVertex {
     /**
      * @returns {GraphVertex[]}
      */
-    getNeighbors() {
+    getFollowings() {
         const edges = this.edges;
+        return edges.map((node: GraphEdge) => node.endVertex);
+    }
 
-        /** @param {GraphEdge} node */
-        const neighborsConverter = (node: GraphEdge) => {
-            return node.startVertex === this ? node.endVertex : node.startVertex;
-        };
-
-        // Return either start or end vertex.
-        // For undirected graphs it is possible that current vertex will be the end one.
-        return edges.map(neighborsConverter);
+    /**
+     * @returns {GraphVertex[]}
+     */
+    getFriends() {
+        const followings = this.getFollowings();
+        return followings.filter(following => following.getFollowings().find(node => node === this));
     }
 
     /**
@@ -80,7 +82,7 @@ export default class GraphVertex {
      * @param {GraphVertex} vertex
      * @returns {boolean}
      */
-    hasNeighbor(vertex: GraphVertex) {
+    hasFollowing(vertex: GraphVertex) {
         const vertexNode = this.edges.find((edge) => edge.startVertex === vertex || edge.endVertex === vertex);
 
         return !!vertexNode;

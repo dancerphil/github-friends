@@ -1,10 +1,12 @@
 import {createRegion} from "region-core";
 
-const forceUpdateRegion = createRegion(0);
+const currentIdRegion = createRegion<string>();
 
-export const forceUpdate = () => forceUpdateRegion.set(v => v + 1);
+export const getCurrentId = currentIdRegion.getValue;
 
-export const useForceUpdate = forceUpdateRegion.useValue;
+export const useCurrentId = currentIdRegion.useValue;
+
+export const setCurrentId = currentIdRegion.set;
 
 interface Option {
     follow: boolean
