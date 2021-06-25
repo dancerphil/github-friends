@@ -5,7 +5,8 @@ import {
     useOption,
     handleFollowChange,
     handleMoreThanOneChange,
-    handleAllChange,
+    handleShowFriendFriendChange,
+    handleShowFriendFriendFriendChange,
     useCurrentId
 } from './region/utils';
 import {useNodesAndLinks} from './region/nodesAndLinks';
@@ -98,7 +99,7 @@ const App = () => {
                             <input
                                 type="checkbox"
                                 id="follow"
-                                disabled={option.all}
+                                disabled={option.showFriendFriend}
                                 checked={option.follow}
                                 onChange={handleFollowChange}
                             />
@@ -108,7 +109,7 @@ const App = () => {
                             <input
                                 type="checkbox"
                                 id="moreThanOne"
-                                disabled={option.all}
+                                disabled={option.showFriendFriend}
                                 checked={option.moreThanOne}
                                 onChange={handleMoreThanOneChange}
                             />
@@ -118,10 +119,21 @@ const App = () => {
                             <input
                                 type="checkbox"
                                 id="all"
-                                checked={option.all}
-                                onChange={handleAllChange}
+                                disabled={option.showFriendFriendFriend}
+                                checked={option.showFriendFriend}
+                                onChange={handleShowFriendFriendChange}
                             />
                             <label htmlFor="all">显示所有二度好友</label>
+                        </Line>
+                        <Line>
+                            <input
+                                type="checkbox"
+                                id="all"
+                                disabled={!option.showFriendFriend}
+                                checked={option.showFriendFriendFriend}
+                                onChange={handleShowFriendFriendFriendChange}
+                            />
+                            <label htmlFor="all">显示所有三度好友</label>
                         </Line>
                         {exceptions.length > 0 && (
                             <Line className={c.hoverIcon}>?</Line>

@@ -1,7 +1,7 @@
 import GraphVertex from "./GraphVertex";
 import GraphEdge from './GraphEdge';
 import Graph from "./Graph";
-import {Category, Link, Node} from "../types";
+import {Category, Link, Node, Option} from "../types";
 
 export const graph = new Graph();
 
@@ -45,7 +45,9 @@ export const getFriends = (id: string) => {
     return graph.getFriends(getVertex(id));
 };
 
-export const BFS = (rootId: string): [Node[], Link[]] => {
+export const BFS = (rootId: string, option: Option): [Node[], Link[]] => {
+    const root = getVertex(rootId);
+
     const visited: {[key: string]: boolean} = {};
     const nodes: Node[] = [];
     const edges: Link[] = [];
@@ -62,8 +64,18 @@ export const BFS = (rootId: string): [Node[], Link[]] => {
             switch (depth) {
                 case 0: return 'me';
                 case 1: return 'friend';
-                case 2: return 'friend-friend';
-                case 3: return 'friend-friend-friend';
+                case 2: {
+                    if (getVertex(id).getFollowings().includes(root)) {
+                        return 'friend-friend+follower'
+                    }
+                    return 'friend-friend';
+                }
+                case 3: {
+                    if (getVertex(id).getFollowings().includes(root)) {
+                        return 'friend-friend-friend+follower'
+                    }
+                    return 'friend-friend-friend';
+                }
                 default: return 'friend-friend-friend'
             }
         })();
@@ -81,8 +93,12 @@ export const BFS = (rootId: string): [Node[], Link[]] => {
             const friendId = friend.getKey();
             edges.push({source: id, target: friendId});
             if (!visited[friendId]) {
-                pushNode(friendId, depth + 1);
-                queue.push({id: friendId, depth: depth + 1});
+                if (!option.showFriendFriendFriend && depth === 2) {
+                    // do nothing
+                } else {
+                    pushNode(friendId, depth + 1);
+                    queue.push({id: friendId, depth: depth + 1});
+                }
             }
         }
         const next = queue.splice(0, 1)[0];

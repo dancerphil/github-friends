@@ -80,16 +80,6 @@ export default class GraphVertex {
 
     /**
      * @param {GraphVertex} vertex
-     * @returns {boolean}
-     */
-    hasFollowing(vertex: GraphVertex) {
-        const vertexNode = this.edges.find((edge) => edge.startVertex === vertex || edge.endVertex === vertex);
-
-        return !!vertexNode;
-    }
-
-    /**
-     * @param {GraphVertex} vertex
      * @returns {(GraphEdge|null)}
      */
     findEdge(vertex: GraphVertex) {

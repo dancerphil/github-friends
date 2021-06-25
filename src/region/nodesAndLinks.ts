@@ -29,10 +29,11 @@ const subscription = {
 
 const getNodesAndLinks = (): [Node[], Link[]] => {
     const currentId = getCurrentId();
+    const option = getOption();
     if(!currentId) {
         return [[], []];
     }
-    return BFS(currentId);
+    return BFS(currentId, option);
     // // 第一次渲染时不要 fixed，等到得到了位置之后再 fixed
     // if (!currentId || !getVertex(currentId)) {
     //     return [[{name: currentId, category: 'me'}], []];

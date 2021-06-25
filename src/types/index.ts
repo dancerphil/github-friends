@@ -24,3 +24,10 @@ export interface Info {
     followers: number;
     following: number;
 }
+
+export interface Option {
+    follow: boolean
+    moreThanOne: boolean
+    showFriendFriend: boolean
+    showFriendFriendFriend: boolean
+}
