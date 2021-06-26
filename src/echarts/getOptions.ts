@@ -4,10 +4,10 @@ const categories: Category[] = [
     'me',
     'friend',
     'friend-friend+follower',
+    'friend-friend+common',
     'friend-friend',
     'friend-friend-friend+follower',
     'friend-friend-friend',
-    'friend-following+follower'
 ];
 
 export const getOptions = (nodes: Node[], links: Link[]) => {
@@ -24,9 +24,10 @@ export const getOptions = (nodes: Node[], links: Link[]) => {
             data: nodes,
             categories: categories.map(name => ({name})),
             force: {
-                edgeLength: 50,
+                initLayout: 'circular',
+                edgeLength: [20, 50],
                 repulsion: 20,
-                gravity: 0.2
+                gravity: 0.1
             },
             edges: links
         }]

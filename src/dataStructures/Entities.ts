@@ -1,5 +1,5 @@
 import GraphVertex, {GraphEdge} from "./GraphVertex";
-import {Category, Info, Link, Node, Option} from "../types";
+import {Info} from "../types";
 
 interface Vertices {
     [id: string]: GraphVertex

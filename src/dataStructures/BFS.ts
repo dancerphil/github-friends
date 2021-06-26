@@ -1,3 +1,4 @@
+import {intersection} from 'lodash';
 import {Category, Link, Node, Option} from "../types";
 import {getVertex} from "./Entities";
 
@@ -8,6 +9,8 @@ export const BFS = (rootId: string, option: Option): [Node[], Link[]] => {
     const visited: {[key: string]: boolean} = {};
     const nodes: Node[] = [];
     const edges: Link[] = [];
+
+    const rootFriendIds: string[] = [];
 
     interface QueueItem {
         id: string;
@@ -25,6 +28,10 @@ export const BFS = (rootId: string, option: Option): [Node[], Link[]] => {
                     if (getVertex(id).getFollowings().includes(root)) {
                         return 'friend-friend+follower'
                     }
+                    const friendIds = getVertex(id).getFriends().map(friend => friend.getKey());
+                    if (intersection(friendIds, rootFriendIds).length > 1) {
+                        return 'friend-friend+common'
+                    }
                     return 'friend-friend';
                 }
                 case 3: {
@@ -37,10 +44,29 @@ export const BFS = (rootId: string, option: Option): [Node[], Link[]] => {
             }
         })();
 
-        nodes.push({
-            name: id,
-            category,
-        });
+        if (!option['friend-friend-friend'] && category === 'friend-friend-friend') {
+            // do nothing
+        } else if (!option['friend-friend'] && category === 'friend-friend') {
+            // do nothing
+        } else if (!option['friend-friend+common'] && category === 'friend-friend+common') {
+            // do nothing
+        } else if (!option['friend-friend+follower'] && category === 'friend-friend+follower') {
+            // do nothing
+        } else if (!option['friend-friend-friend+follower'] && category === 'friend-friend-friend+follower') {
+            // do nothing
+        } else if (!option['friend-friend-friend'] && category === 'friend-friend-friend') {
+            // do nothing
+        } else {
+            nodes.push({
+                name: id,
+                category,
+                // @ts-ignore 影响 echarts 引力
+                value: [4,3,2,1][depth],
+            });
+        }
+        if (category === "friend") {
+            rootFriendIds.push(id)
+        }
     };
 
     const search = (id: string, depth: number) => {
@@ -50,7 +76,7 @@ export const BFS = (rootId: string, option: Option): [Node[], Link[]] => {
             const friendId = friend.getKey();
             edges.push({source: id, target: friendId});
             if (!visited[friendId]) {
-                if (!option.showFriendFriendFriend && depth === 2) {
+                if (!option['friend-friend-friend+follower'] && depth === 2) {
                     // do nothing
                 } else {
                     pushNode(friendId, depth + 1);

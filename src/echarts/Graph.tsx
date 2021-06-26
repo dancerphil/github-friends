@@ -21,10 +21,10 @@ const Graph: FC<Props> = ({nodes, links}) => {
                         '#5470c6',
                         '#ee6666',
                         '#73c0de',
+                        '#3ba272',
                         '#91cc75',
                         '#fac858',
-                        '#cccccc',
-                        '#fc8452'/* ,
+                        '#cccccc'/* ,
                         '#9a60b4',
                         '#ea7ccc' */
                     ],

@@ -1,16 +1,17 @@
 
-export type Category = 'me'
-    | 'friend'
-    | 'friend-friend+follower'
-    | 'friend-friend'
-    | 'friend-friend-friend'
-    | 'friend-friend-friend+follower'
-    | 'friend-following+follower'
-
 export interface Node {
     name: string;
     category: Category
 }
+
+export type Category = 'me'
+    | 'friend'
+    | 'friend-friend+follower'
+    | 'friend-friend+common'
+    | 'friend-friend'
+    | 'friend-friend-friend+follower'
+    | 'friend-friend-friend+common'
+    | 'friend-friend-friend'
 
 export interface Link {
     source: string;
@@ -25,9 +26,4 @@ export interface Info {
     following: number;
 }
 
-export interface Option {
-    follow: boolean
-    moreThanOne: boolean
-    showFriendFriend: boolean
-    showFriendFriendFriend: boolean
-}
+export type Option = Partial<Record<Category, boolean>>

@@ -44,27 +44,28 @@ const loadUserFollowing = async (id: string, depth: number) => {
     const followingsPage = Math.ceil(getVertex(id).info!.following / 100);
 
     // 非本人，且关注了太多人的用户跳过
-    if (depth === 0 || followingsPage <= 100) {
+    if (depth > 0 && followingsPage > 100) {
+        pushException(`没有加载 ${id} 的关注列表，关注了太多人`);
+    } else {
         for (let page = 1; page <= followingsPage; page++) {
             setDescription(`${prefixText}：followings ${page}/${followingsPage}`);
             const followings = await apiGetFollowings(page);
             insertFollowings(id, followings);
         }
-    } else {
-        pushException(`没有加载 ${id} 的关注列表，关注了太多人`);
     }
 
     const followersPage = Math.ceil(getVertex(id).info!.followers / 100);
 
     // 非本人，且关注者众多的用户跳过
-    if (depth === 0 || followersPage <= 10) {
+    if (depth > 0 && followersPage > 10) {
+        pushException(`没有加载 ${id} 的关注者列表，被太多人关注`);
+        // 如果 depth >= 2 不发 follower 请求，二度好友直接可以统计好友关系，但不能查到三度好友
+    } else {
         for (let page = 1; page <= followersPage; page++) {
             setDescription(`${prefixText}：followers ${page}/${followersPage}`);
             const followers = await apiGetFollowers(page);
             insertFollowers(id, followers);
         }
-    } else {
-        pushException(`没有加载 ${id} 的关注者列表，被太多人关注`);
     }
 
     if (depth <= 1) {

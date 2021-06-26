@@ -6,6 +6,8 @@ https://dancerphil.github.io/github-friends/
 
 ## TODOs
 
-- [ ] some options are not ready yet
-
 - [ ] implement user hovercard
+
+- [ ] implement pause button
+
+- [ ] friend node now shakes too much when graph updated
