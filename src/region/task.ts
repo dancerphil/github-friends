@@ -1,25 +1,16 @@
 import {getMeInfo, getUserApi} from "../github-api";
-import {Info} from '../types';
-import {setCurrentId} from './utils';
+import {setCurrentId} from './currentId';
 import {emitNodesAndLinks} from './nodesAndLinks';
-import {getFriends, addEdge, initVertex, getVertex} from '../dataStructures/Entities';
-import {emitDescription} from "./description";
+import {getFriends, addEdge, initVertex, getVertex, updateVertexInfo} from '../dataStructures/Entities';
+import {setDescription} from "./description";
 import {pushException} from "./exception";
 
-// const duration = 200;
-//
+// 防止并发过多，增加一个队列
 let currentPromise = Promise.resolve();
 
-// not concurrent for now
 const addTask = (task: () => Promise<void>) => {
     const onFulfilled = () => new Promise<void>(resolve =>  resolve(task()));
     currentPromise = currentPromise.then(onFulfilled, onFulfilled);
-};
-
-const updateUserInfo = (id: string, info: Info) => {
-    if (getVertex(id)) {
-        getVertex(id).info = info;
-    }
 };
 
 const insertFollowings = (id: string, followings: string[]) => {
@@ -45,17 +36,17 @@ const loadUserFollowing = async (id: string, depth: number) => {
     if (getVertex(id)?.info) {
         return;
     }
-    emitDescription(`加载 ${id}（你的 ${depth} 度好友）的信息`);
+    setDescription(`加载 ${id}（你的 ${depth} 度好友）的信息`);
     const info = await apiGetInfo();
     initVertex(id);
-    updateUserInfo(id, info);
+    updateVertexInfo(id, info);
     const prefixText = `加载 ${id}（你的 ${depth} 度好友）的好友列表`;
     const followingsPage = Math.ceil(getVertex(id).info!.following / 100);
 
     // 非本人，且关注了太多人的用户跳过
     if (depth === 0 || followingsPage <= 100) {
         for (let page = 1; page <= followingsPage; page++) {
-            emitDescription(`${prefixText}：followings ${page}/${followingsPage}`);
+            setDescription(`${prefixText}：followings ${page}/${followingsPage}`);
             const followings = await apiGetFollowings(page);
             insertFollowings(id, followings);
         }
@@ -68,7 +59,7 @@ const loadUserFollowing = async (id: string, depth: number) => {
     // 非本人，且关注者众多的用户跳过
     if (depth === 0 || followersPage <= 10) {
         for (let page = 1; page <= followersPage; page++) {
-            emitDescription(`${prefixText}：followers ${page}/${followersPage}`);
+            setDescription(`${prefixText}：followers ${page}/${followersPage}`);
             const followers = await apiGetFollowers(page);
             insertFollowers(id, followers);
         }
@@ -81,6 +72,8 @@ const loadUserFollowing = async (id: string, depth: number) => {
         for (let i = 0; i < friends.length; i++) {
             const friend = friends[i];
             const friendId = friend.getKey();
+
+            // 添加至队列
             addTask(() => loadUserFollowing(friendId, depth +  1));
         }
     }
@@ -91,5 +84,6 @@ export const start = async (token: string) => {
     const currentId = me.login;
     setCurrentId(currentId);
 
+    // 添加至队列
     addTask(() => loadUserFollowing(currentId, 0));
 };

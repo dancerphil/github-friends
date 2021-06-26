@@ -1,14 +1,6 @@
 import {createRegion} from "region-core";
 import {Option} from '../types';
 
-const currentIdRegion = createRegion<string>();
-
-export const getCurrentId = currentIdRegion.getValue;
-
-export const useCurrentId = currentIdRegion.useValue;
-
-export const setCurrentId = currentIdRegion.set;
-
 const optionRegion = createRegion<Option>({
     follow: true,
     moreThanOne: true,

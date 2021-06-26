@@ -1,5 +1,6 @@
-import GraphEdge from "./GraphEdge";
 import {Info} from "../types";
+
+export type GraphEdge = [GraphVertex, GraphVertex];
 
 export default class GraphVertex {
     value: string;
@@ -31,19 +32,11 @@ export default class GraphVertex {
     }
 
     /**
-     * @param {GraphEdge} edge
-     */
-    deleteEdge(edge: GraphEdge) {
-        // We don't need deleteEdge to be fast
-        this.edges.splice(this.edges.findIndex(node => node === edge), 1);
-    }
-
-    /**
      * @returns {GraphVertex[]}
      */
     getFollowings() {
         const edges = this.edges;
-        return edges.map((node: GraphEdge) => node.endVertex);
+        return edges.map(([startVertex, endVertex]: GraphEdge) => endVertex);
     }
 
     /**
@@ -62,13 +55,6 @@ export default class GraphVertex {
     }
 
     /**
-     * @return {number}
-     */
-    getDegree() {
-        return this.edges.length;
-    }
-
-    /**
      * @param {GraphEdge} requiredEdge
      * @returns {boolean}
      */
@@ -83,13 +69,7 @@ export default class GraphVertex {
      * @returns {(GraphEdge|null)}
      */
     findEdge(vertex: GraphVertex) {
-        const edgeFinder = (edge: GraphEdge) => {
-            return edge.startVertex === vertex || edge.endVertex === vertex;
-        };
-
-        const edge = this.edges.find(edgeFinder);
-
-        return edge ? edge : null;
+        return this.edges.find(([startVertex, endVertex]: GraphEdge) => endVertex === vertex);
     }
 
     /**
@@ -103,7 +83,7 @@ export default class GraphVertex {
      * @return {GraphVertex}
      */
     deleteAllEdges() {
-        this.getEdges().forEach((edge) => this.deleteEdge(edge));
+        this.edges = [];
 
         return this;
     }

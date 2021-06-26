@@ -1,14 +1,14 @@
 import React, {FC, useCallback, useEffect, useState} from 'react';
 import {createLocalStorageRegion} from 'region-core';
-import {start} from './region';
+import {start} from './region/task';
 import {
     useOption,
     handleFollowChange,
     handleMoreThanOneChange,
     handleShowFriendFriendChange,
     handleShowFriendFriendFriendChange,
-    useCurrentId
-} from './region/utils';
+} from './region/option';
+import {useCurrentId} from './region/currentId';
 import {useNodesAndLinks} from './region/nodesAndLinks';
 import Graph from "./echarts/Graph";
 import c from './App.module.css';

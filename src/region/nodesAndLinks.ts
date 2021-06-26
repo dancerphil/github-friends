@@ -1,7 +1,8 @@
 import {useSubscription} from "use-subscription";
 import {Link, Node} from "../types";
-import {getCurrentId, getOption} from "./utils";
-import {getVertex, getFriends, getFollowings, BFS} from "../dataStructures/Entities";
+import {getOption} from "./option";
+import {getCurrentId} from './currentId';
+import {BFS} from "../dataStructures/BFS";
 
 type Listener = () => void
 

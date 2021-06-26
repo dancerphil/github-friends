@@ -1,1 +1,1 @@
-Copied from https://github.com/trekhleb/javascript-algorithms with edits.
+Inspired by https://github.com/trekhleb/javascript-algorithms & [conwnet](https://github.com/conwnet)
